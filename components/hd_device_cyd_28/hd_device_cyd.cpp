@@ -37,14 +37,13 @@ void IRAM_ATTR touchpad_read(lv_indev_drv_t *indev_driver, lv_indev_data_t *data
 
     if (ts.touched()) {
         TS_Point p = ts.getPoint();
-        x = map(p.x, 220, 3850, 320, 1);
+        x = map(p.x, 220, 3850, 1, 320);
         y = map(p.y, 310, 3773, 1, 240);
         data->point.x = x;
         data->point.y = y;
         data->state = LV_INDEV_STATE_PR;
-        ESP_LOGCONFIG(TAG, "X: %d ", x);
+        ESP_LOGCONFIG(TAG, "28X: %d ", x);
         ESP_LOGCONFIG(TAG, "Y: %d ", y);
-        ESP_LOGD("TOUCH", "Raw X: %d, Raw Y: %d", p.x, p.y);
     } else {
         data->state = LV_INDEV_STATE_REL;
     }
@@ -56,17 +55,18 @@ void HaDeckDevice::setup() {
 
     mySpi.begin(XPT2046_CLK, XPT2046_MISO, XPT2046_MOSI, XPT2046_CS);
     ts.begin(mySpi);
-    ts.setRotation(2);
+    ts.setRotation(1);
 
     lcd.init();
+    lcd.fillScreen(TFT_BLACK);
     lcd.setRotation(2);
 
     lv_disp_draw_buf_init(&draw_buf, buf, NULL, TFT_HEIGHT * 20);
 
     static lv_disp_drv_t disp_drv;
     lv_disp_drv_init(&disp_drv);
-    disp_drv.hor_res = TFT_WIDTH;
-    disp_drv.ver_res = TFT_HEIGHT;
+    disp_drv.hor_res = TFT_HEIGHT;
+    disp_drv.ver_res = TFT_WIDTH;
     disp_drv.rotated = 0;
     disp_drv.sw_rotate = 0;
     disp_drv.flush_cb = flush_pixels;

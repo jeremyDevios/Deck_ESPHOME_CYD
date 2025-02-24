@@ -7,8 +7,8 @@ substitutions:
   THERMOSTAT_ENTITY: climate.termostat
 
 esphome:
-  name: ha-deck-cyd
-  friendly_name: HA_Deck_CYD
+  name: ha-deck-cyd-28
+  friendly_name: HA_Deck_CYD_28
   libraries:
     - SPI
     - Wire
@@ -23,12 +23,14 @@ logger:
 
 api:
 
-#ota:
-#  password: "Passwd"
-
 wifi:
   ssid: !secret wifi_ssid
   password: !secret wifi_password
+
+ota:
+  - platform: esphome
+    id: my_ota
+    password: "Old password"
 
 external_components:
   #- source:
@@ -39,7 +41,7 @@ external_components:
   - source:
       type: local
       path: ../components
-    components: [ hd_device_cyd ]
+    components: [ hd_device_cyd_28 ]
   - source:
       type: git
       url: https://github.com/strange-v/ha_deck
@@ -82,6 +84,7 @@ sensor:
     entity_id: sensor.tz3000_xr3htd96_ts0201_temperature
     unit_of_measurement: "°C"
 
+#Custom HomeAssistant
   - platform: homeassistant
     id: temp_ellie
     entity_id: sensor.temperature_ellie_temperature
@@ -119,7 +122,8 @@ text_sensor:
   - platform: homeassistant
     id: switch_01_state
     entity_id: switch.smart_plug_03_socket_1
-  
+    
+#custom
   - platform: homeassistant
     id: lampe_tele_state
     entity_id: switch.sonoff_lampe_tele
@@ -127,7 +131,6 @@ text_sensor:
   - platform: homeassistant
     id: dressing_state
     entity_id: light.led_chambre_parent
-    
 
 
 time:
@@ -151,7 +154,7 @@ number:
     min_value: 0
     max_value: 100
     step: 5
-    initial_value: 75
+    initial_value: 100
     restore_value: true
     set_action:
       - lambda: |-
@@ -208,6 +211,8 @@ switch:
     name: "Switch 01"
     id: switch_01
     optimistic: true
+
+#Custom
   - platform: homeassistant
     id: lampe_tele
     entity_id: switch.sonoff_lampe_tele
@@ -233,9 +238,9 @@ switch:
     id: dressing
     entity_id: light.led_chambre_parent
 
-hd_device_cyd:
+hd_device_cyd_28:
   id: device
-  brightness: 75
+  brightness: 100
 
 ha_deck:
   id: deck
@@ -279,43 +284,22 @@ ha_deck:
         #    - lambda: |-
         #        id(deck).switch_screen("$SCREEN_TEMPS");
 
+        #- type: button
+        ##  position: 244, 10
+        ##  dimensions: 68x100
+        #  text: "Alarme"
+        #  icon: 󰦝
+        #  enabled: return true;
+        #  on_click:
+        #    lambda: id(deck).switch_screen("$SCREEN_LED");
+        #  on_long_press:
+        #    - logger.log: "Lights long pressed"
+
         - type: button
           position: 244, 10
           dimensions: 68x100
           text: "Alarme"
-          icon: mdi:security
-          enabled: return true;
-          on_click:
-            lambda: id(deck).switch_screen("$SCREEN_LED");
-          on_long_press:
-            - logger.log: "Lights long pressed"
-
-        - type: button
-          position: 10, 125
-          dimensions: 93x105
-          text: "Lights"
-          icon: 󰝩
-          enabled: return true;
-          on_click:
-            lambda: id(deck).switch_screen("$SCREEN_LED");
-          on_long_press:
-            - logger.log: "Lights long pressed"
-
-        - type: button
-          position: 113, 125
-          dimensions: 93x105
-          text: "Thermostat"
-          icon: 󰢑
-          enabled: return true;
-          on_click:
-            lambda: |-
-                id(deck).switch_screen("$SCREEN_THERMOSTAT");
-
-        - type: button
-          position: 216, 125
-          dimensions: 93x105
-          text: "Ender"
-          icon: 󰐫
+          icon: 󰦝
           toggle: true
           enabled: return true;
           checked: |-
@@ -333,6 +317,61 @@ ha_deck:
                 data:
                   entity_id: switch.smart_plug_03_socket_1
             - switch.turn_off: switch_01
+
+        - type: button
+          position: 10, 125
+          dimensions: 68x110
+          text: "Lumière"
+          icon: 󰝩
+          enabled: return true;
+          on_click:
+            lambda: id(deck).switch_screen("$SCREEN_LED");
+          on_long_press:
+            - logger.log: "Lights long pressed"
+
+        - type: button
+          position: 88, 120
+          dimensions: 68x110
+          text: "Chauffage"
+          icon: 󰐸
+          enabled: return true;
+          on_click:
+            lambda: |-
+                id(deck).switch_screen("$SCREEN_THERMOSTAT");
+
+        - type: button
+          position: 166, 120
+          dimensions: 68x110
+          text: "Jardin"
+          icon: 󱁠
+          toggle: true
+          enabled: return true;
+          checked: |-
+            if(id(switch_01_state).state == "on") { return 1; }
+            else { return 0; }
+          on_turn_on:
+            - homeassistant.service:
+                service: switch.turn_on
+                data:
+                  entity_id: switch.smart_plug_03_socket_1
+            - switch.turn_on: switch_01
+          on_turn_off:
+            - homeassistant.service:
+                service: switch.turn_off
+                data:
+                  entity_id: switch.smart_plug_03_socket_1
+            - switch.turn_off: switch_01
+
+        - type: button
+          position: 244, 120
+          dimensions: 68x110
+          text: "Temperatu"
+          icon: 󰽕
+          enabled: return true;
+          on_click:
+            lambda: |-
+                id(deck).switch_screen("$SCREEN_THERMOSTAT");
+
 
     - name: ${SCREEN_ROOMS}
       widgets:
@@ -412,6 +451,34 @@ ha_deck:
           enabled: return true;
           on_click:
             - lambda: id(deck).switch_screen("$SCREEN_MAIN");
+
+        #- type: slider
+        #  position: 80, 8
+        #  dimensions: 60x223
+        #  text: Screen
+        #  min: 0
+        #  max: 100
+        #  enabled: return true;
+        #  value: return id(device).get_brightness();
+        #  on_change:
+        #    lambda: id(device).set_brightness(x);
+
+        #- type: slider
+        #  position: 155, 8
+        #  dimensions: 60x165
+          #text: "Light 1"
+        #  min: 1
+        #  max: 255
+        #  enabled: return true;
+        #  value: |-
+        #    if(id(light_01_brightness).state <= 255) { return id(light_01_brightness).state; }
+        #    else { return 0; }
+        #  on_change:
+        #    - homeassistant.service:
+        #        service: light.turn_on
+        #        data:
+        #          entity_id: light.wled_table_2
+        #          brightness: !lambda return x;
 
         - type: button
           position: 60, 10

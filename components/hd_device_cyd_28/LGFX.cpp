@@ -7,12 +7,12 @@ LGFX::LGFX(void)
 {
   {
     auto cfg = _bus_instance.config();
-    cfg.spi_host = VSPI_HOST;
+    cfg.spi_host = SPI2_HOST;
     cfg.freq_write = 40000000;
     cfg.freq_read  = 16000000;
     cfg.spi_3wire  = false;
     cfg.use_lock   = true;
-    cfg.dma_channel = SPI_DMA_CH_AUTO;
+    cfg.dma_channel = 1;
     cfg.pin_sclk = 14;
     cfg.pin_mosi = 13;
     cfg.pin_miso = 12;
@@ -34,14 +34,15 @@ LGFX::LGFX(void)
     cfg.memory_height    =   TFT_HEIGHT;
     cfg.offset_x         =     0;
     cfg.offset_y         =     0;
-    cfg.offset_rotation  =     0;
+    cfg.offset_rotation  =     1;
     cfg.dummy_read_pixel =     8;
     cfg.dummy_read_bits  =     1;
     cfg.readable         =  true;
-    cfg.invert           =  true;
+    cfg.invert           =  false;
     cfg.rgb_order        = false;
     cfg.dlen_16bit       = false;
-    cfg.bus_shared       =  true;
+    cfg.bus_shared       =  false;
+    cfg.dlen_16bit = false;
 
     _panel_instance.config(cfg);
   }
