@@ -26,8 +26,9 @@ const uint16_t test_image[3] = {0xF800, 0x07E0, 0x001F};
 
 void displayBackground() {
     lcd.startWrite();  
-    //lcd.pushImage(0, 0, Room.width, Room.height, Room.data); 
-    lcd.pushImage(0, 0, 3, 1, test_image);   
+    // Convert the Room.jpg image to a compatible format (e.g., RGB565) and include it as a C array
+    lcd.pushImage(0, 0, Room.width, Room.height, reinterpret_cast<const uint16_t*>(Room.data)); 
+    //lcd.pushImage(0, 0, 3, 1, test_image);   
     lcd.endWrite();
 }
 
