@@ -1,4 +1,6 @@
 #include "hd_device_cyd.h"
+#include "Room.h"
+#include "LovyanGFX.hpp"
 
 namespace esphome {
 namespace hd_device {
@@ -17,6 +19,17 @@ LGFX lcd;
 
 lv_disp_t *indev_disp;
 lv_group_t *group;
+
+//test
+const uint16_t test_image[3] = {0xF800, 0x07E0, 0x001F}; 
+
+
+void displayBackground() {
+    lcd.startWrite();  
+    //lcd.pushImage(0, 0, Room.width, Room.height, Room.data); 
+    lcd.pushImage(0, 0, 3, 1, test_image);   
+    lcd.endWrite();
+}
 
 void IRAM_ATTR flush_pixels(lv_disp_drv_t *disp, const lv_area_t *area, lv_color_t *color_p)
 {
@@ -57,6 +70,8 @@ void HaDeckDevice::setup() {
     mySpi.begin(XPT2046_CLK, XPT2046_MISO, XPT2046_MOSI, XPT2046_CS);
     ts.begin(mySpi);
     ts.setRotation(2);
+
+    
 
     lcd.init();
     lcd.setRotation(2);
@@ -102,6 +117,14 @@ void HaDeckDevice::loop() {
         time_ = ms;
         ESP_LOGCONFIG(TAG, "Free memory: %d bytes", esp_get_free_heap_size());
     }
+
+    // lcd.fillScreen(0xF800); // Remplit l'écran en rouge (RGB565)
+    // delay(2000);
+    // lcd.fillScreen(0x07E0); // Vert
+    // delay(2000);
+    // lcd.fillScreen(0x001F); // Bleu
+
+    displayBackground();
 }
 
 float HaDeckDevice::get_setup_priority() const { return setup_priority::DATA; }
