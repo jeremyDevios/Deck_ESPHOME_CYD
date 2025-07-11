@@ -3,6 +3,9 @@ substitutions:
   SCREEN_LED: led
   SCREEN_HEAT: heat
   SCREEN_TEMP: temperature
+  SCREEN_GARDEN: garden
+  SCREEN_POWER: power
+
 
 esphome:
   name: ha-deck-cyd-28
@@ -50,6 +53,7 @@ external_components:
 web_server:
   port: 80
 
+
 sensor:
 #Custom HomeAssistant
   - platform: homeassistant
@@ -76,6 +80,57 @@ sensor:
     id: temp_salon
     entity_id: sensor.climatisation_temperature
     unit_of_measurement: "°C"
+
+  # Power
+  - platform: homeassistant
+    id: house_power
+    entity_id: sensor.house_power_channel_1_power
+    unit_of_measurement: "W"
+  - platform: homeassistant
+    id: solar_power
+    entity_id: sensor.production_solaire
+    unit_of_measurement: "W"
+  - platform: homeassistant
+    id: mining_power
+    entity_id: sensor.prise_pc_power
+    unit_of_measurement: "W"
+  - platform: homeassistant
+    id: pool_power
+    entity_id: sensor.shellyplus1pm_80646fe2e87c_switch_0_power
+    unit_of_measurement: "W"
+  - platform: homeassistant
+    id: heat_pump_power
+    entity_id: sensor.house_power_channel_2_power
+    unit_of_measurement: "W"
+  - platform: homeassistant
+    id: desk_power
+    entity_id: sensor.prise_bureau_power
+    unit_of_measurement: "W"
+  - platform: homeassistant
+    id: arrosage_power
+    entity_id: sensor.sonoff_1000a93832_power
+    unit_of_measurement: "W"
+  - platform: homeassistant
+    id: chauffage_ellie_power
+    entity_id: sensor.shellyplus1pm_b0b21c0f5ce4_switch_0_power
+    unit_of_measurement: "W"
+  - platform: homeassistant
+    id: chauffage_iris_power
+    entity_id: sensor.shelly_chauffage_iris_switch_0_power
+    unit_of_measurement: "W"
+  - platform: homeassistant
+    id: seche_serviete_power
+    entity_id: sensor.sonoff_1000cd59e2_power
+    unit_of_measurement: "W"
+  - platform: homeassistant
+    id: machine_laver_power
+    entity_id: sensor.prise_machines_laver_puissance
+    unit_of_measurement: "W"
+  - platform: homeassistant
+    id: lave_vaisselle_power
+    entity_id: sensor.sunology_puissance
+    unit_of_measurement: "W"
+
 
 text_sensor:    
 #custom
@@ -106,6 +161,9 @@ text_sensor:
   - platform: homeassistant
     id: arrosage_state
     entity_id: switch.sonoff_arrosage
+  - platform: homeassistant
+    id: pool_state
+    entity_id: switch.shellyplus1pm_80646fe2e87c_switch_0
 
 
 time:
@@ -193,10 +251,27 @@ switch:
   - platform: homeassistant
     id: dressing
     entity_id: light.led_chambre_parent
+  - platform: homeassistant
+    id: pool
+    entity_id: switch.shellyplus1pm_80646fe2e87c_switch_0
 
 hd_device_cyd_28:
   id: device
   brightness: 100
+
+#script:
+#  - id: update_display
+#    mode: restart 
+#    then:
+#      - lvgl.label.update:
+#        - id: local_time
+#          text: !lambda |-
+#            int value = id(housePower).state;
+#            if (value < 0) {
+#              return (std::string("-") + std::to_string(std::abs(value)) + " W").c_str();
+#            } else {
+#              return (std::to_string(value) + " W").c_str();
+#            }
 
 ha_deck:
   id: deck
@@ -218,8 +293,10 @@ ha_deck:
           id: local_time
           position: 10, 10
           dimensions: 224x100
-          text: local_time
           enabled: return true;
+          text: Marmotte House
+          on_click:
+            lambda: id(deck).switch_screen("$SCREEN_POWER");
 
         - type: button
           position: 244, 10
@@ -269,24 +346,11 @@ ha_deck:
           position: 166, 120
           dimensions: 68x110
           text: "Jardin"
-          icon: 󱁠
-          toggle: true
+          icon: 󰐅
           enabled: return true;
-          checked: |-
-            if(id(arrosage_state).state == "on") { return 1; }
-            else { return 0; }
-          on_turn_on:
-            - homeassistant.service:
-                service: switch.turn_on
-                data:
-                  entity_id: switch.sonoff_arrosage
-            - switch.turn_on: arrosage
-          on_turn_off:
-            - homeassistant.service:
-                service: switch.turn_off
-                data:
-                  entity_id: switch.sonoff_arrosage
-            - switch.turn_off: arrosage
+          on_click:
+            lambda: |-
+                id(deck).switch_screen("$SCREEN_GARDEN");
 
         - type: button
           position: 244, 120
@@ -496,4 +560,203 @@ ha_deck:
             sprintf(buff, "%.1f", id(temp_chambre).state);
             return std::string(buff);
 
+    - name: ${SCREEN_POWER}
+      widgets:
+        - type: button
+          position: 6, 9
+          dimensions: 30x222
+          icon: 󰅁
+          enabled: return true;
+          on_click:
+            - lambda: id(deck).switch_screen("$SCREEN_MAIN");
+
+        # First row (y = 9)
+        - type: value-card
+          id: house_power_card
+          position: 46, 9
+          dimensions: 68x110
+          text: "House"
+          enabled: return true;
+          value: |-
+            char buff[10] = "-";
+            sprintf(buff, "%d", (int)id(house_power).state);
+            return std::string(buff);
+
+        - type: value-card
+          id: solar_power_card
+          position: 124, 9
+          dimensions: 68x110
+          text: "Solar"
+          enabled: return true;
+          value: |-
+            char buff[10] = "-";
+            sprintf(buff, "%d", (int)id(solar_power).state);
+            return std::string(buff);
+
+        - type: value-card
+          id: mining_power_card
+          position: 202, 9
+          dimensions: 68x110
+          text: "Mining"
+          enabled: return true;
+          value: |-
+            char buff[10] = "-";
+            sprintf(buff, "%d", (int)id(mining_power).state);
+            return std::string(buff);
+
+        - type: value-card
+          id: pool_power_card
+          position: 280, 9
+          dimensions: 68x110
+          text: "Pool"
+          enabled: return true;
+          value: |-
+            char buff[10] = "-";
+            sprintf(buff, "%d", (int)id(pool_power).state);
+            return std::string(buff);
+
+        # Second row (y = 129 = 9 + 110 + 10)
+        - type: value-card
+          id: heat_pump_power_card
+          position: 46, 129
+          dimensions: 68x110
+          text: "HeatPump"
+          enabled: return true;
+          value: |-
+            char buff[10] = "-";
+            sprintf(buff, "%d", (int)id(heat_pump_power).state);
+            return std::string(buff);
+
+        - type: value-card
+          id: desk_power_card
+          position: 124, 129
+          dimensions: 68x110
+          text: "Desk"
+          enabled: return true;
+          value: |-
+            char buff[10] = "-";
+            sprintf(buff, "%d", (int)id(desk_power).state);
+            return std::string(buff);
+
+        - type: value-card
+          id: arrosage_power_card
+          position: 202, 129
+          dimensions: 68x110
+          text: "Arrosage"
+          enabled: return true;
+          value: |-
+            char buff[10] = "-";
+            sprintf(buff, "%d", (int)id(arrosage_power).state);
+            return std::string(buff);
+
+        - type: value-card
+          id: chauffage_ellie_power_card
+          position: 280, 129
+          dimensions: 68x110
+          text: "Ch. Ellie"
+          enabled: return true;
+          value: |-
+            char buff[10] = "-";
+            sprintf(buff, "%d", (int)id(chauffage_ellie_power).state);
+            return std::string(buff);
+
+        - type: value-card
+          id: chauffage_iris_power_card
+          position: 358, 129
+          dimensions: 68x110
+          text: "Ch. Iris"
+          enabled: return true;
+          value: |-
+            char buff[10] = "-";
+            sprintf(buff, "%d", (int)id(chauffage_iris_power).state);
+            return std::string(buff);
+
+        - type: value-card
+          id: seche_serviete_power_card
+          position: 436, 129
+          dimensions: 68x110
+          text: "Sèche"
+          enabled: return true;
+          value: |-
+            char buff[10] = "-";
+            sprintf(buff, "%d", (int)id(seche_serviete_power).state);
+            return std::string(buff);
+
+        - type: value-card
+          id: lave_vaisselle_power_card
+          position: 514, 129
+          dimensions: 68x110
+          text: "Vaisselle"
+          enabled: return true;
+          value: |-
+            char buff[10] = "-";
+            sprintf(buff, "%d", (int)id(lave_vaisselle_power).state);
+            return std::string(buff);
+
+        - type: value-card
+          id: machine_laver_power_card
+          position: 592, 129
+          dimensions: 68x110
+          text: "Laver"
+          enabled: return true;
+          value: |-
+            char buff[10] = "-";
+            sprintf(buff, "%d", (int)id(machine_laver_power).state);
+            return std::string(buff);
+    
+    - name: ${SCREEN_GARDEN}
+      widgets:
+        - type: button
+          position: 6, 9
+          dimensions: 30x222
+          icon: 󰅁
+          enabled: return true;
+          on_click:
+            - lambda: id(deck).switch_screen("$SCREEN_MAIN");
         
+        - type: button
+          position: 46, 9
+          dimensions: 80x106
+          text: "Arrosage"
+          icon: 󱁠
+          toggle: true
+          enabled: return true;
+          checked: |-
+            if(id(arrosage_state).state == "on") { return 1; }
+            else { return 0; }
+          on_turn_on:
+            - homeassistant.service:
+                service: switch.turn_on
+                data:
+                  entity_id: switch.sonoff_arrosage
+            - switch.turn_on: arrosage
+          on_turn_off:
+            - homeassistant.service:
+                service: switch.turn_off
+                data:
+                  entity_id: switch.sonoff_arrosage
+            - switch.turn_off: arrosage
+
+        - type: button
+          position: 136, 9
+          dimensions: 80x106
+          text: "Piscine"
+          icon: 󰘆
+          toggle: true
+          enabled: return true;
+          checked: |-
+            if(id(pool_state).state == "on") { return 1; }
+            else { return 0; }
+          on_turn_on:
+            - homeassistant.service:
+                service: switch.turn_on
+                data:
+                  entity_id: switch.shellyplus1pm_80646fe2e87c_switch_0
+            - switch.turn_on: pool
+          on_turn_off:
+            - homeassistant.service:
+                service: switch.turn_off
+                data:
+                  entity_id: switch.shellyplus1pm_80646fe2e87c_switch_0
+            - switch.turn_off: pool
+
