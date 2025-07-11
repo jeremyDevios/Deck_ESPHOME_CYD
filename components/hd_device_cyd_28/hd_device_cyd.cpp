@@ -58,7 +58,7 @@ void HaDeckDevice::setup() {
     ts.setRotation(1);
 
     lcd.init();
-    lcd.fillScreen(TFT_BLACK);
+    //lcd.fillScreen(TFT_BLACK);
     lcd.setRotation(2);
 
     lv_disp_draw_buf_init(&draw_buf, buf, NULL, TFT_HEIGHT * 20);
@@ -114,6 +114,7 @@ void HaDeckDevice::set_brightness(uint8_t value) {
     brightness_ = value;
     lcd.setBrightness(brightness_);
 }
+
 
 }  // namespace hd_device
 }  // namespace esphome
