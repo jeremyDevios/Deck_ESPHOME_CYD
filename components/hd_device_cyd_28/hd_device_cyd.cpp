@@ -1,4 +1,5 @@
 #include "hd_device_cyd.h"
+#include "LovyanGFX.hpp"
 
 namespace esphome {
 namespace hd_device {
@@ -58,7 +59,6 @@ void HaDeckDevice::setup() {
     ts.setRotation(1);
 
     lcd.init();
-    //lcd.fillScreen(TFT_BLACK);
     lcd.setRotation(2);
 
     lv_disp_draw_buf_init(&draw_buf, buf, NULL, TFT_HEIGHT * 20);
@@ -86,12 +86,25 @@ void HaDeckDevice::setup() {
 
     lcd.setBrightness(brightness_);
 
-    lv_obj_t * bg_color = lv_obj_create(lv_scr_act());
-    lv_obj_set_size(bg_color, 320, 240);
-    lv_obj_set_style_border_width(bg_color, 0, LV_PART_MAIN | LV_STATE_DEFAULT);
-    lv_obj_set_style_bg_color(bg_color, lv_color_hex(0x171717), LV_PART_MAIN | LV_STATE_DEFAULT);
-    lv_obj_set_parent(bg_color, lv_scr_act());
+}
 
+// Add this function to handle screen changes
+void HaDeckDevice::on_screen_change(const std::string &screen_name) {
+    static lv_obj_t *bg_image = nullptr;
+
+    // Remove previous bg image if it exists
+    if (bg_image) {
+        lv_obj_del(bg_image);
+        bg_image = nullptr;
+    }
+
+    if (screen_name == "temperature") { // or use your SCREEN_TEMP substitution value
+        bg_image = lv_img_create(lv_scr_act());
+        lv_img_set_src(bg_image, &RoomText);
+        lv_obj_align(bg_image, LV_ALIGN_CENTER, 0, 0);
+        lv_obj_move_background(bg_image); // Ensure it's at the back
+    }
+    // else: no bg image, default background
 }
 
 void HaDeckDevice::loop() {
@@ -113,25 +126,6 @@ uint8_t HaDeckDevice::get_brightness() {
 void HaDeckDevice::set_brightness(uint8_t value) {
     brightness_ = value;
     lcd.setBrightness(brightness_);
-}
-
-// Add this function to handle screen changes
-void HaDeckDevice::on_screen_change(const std::string &screen_name) {
-    static lv_obj_t *bg_image = nullptr;
-
-    // Remove previous bg image if it exists
-    if (bg_image) {
-        lv_obj_del(bg_image);
-        bg_image = nullptr;
-    }
-
-    if (screen_name == "temperature") { // or use your SCREEN_TEMP substitution value
-        bg_image = lv_img_create(lv_scr_act());
-        lv_img_set_src(bg_image, &bg_room);
-        lv_obj_align(bg_image, LV_ALIGN_CENTER, 0, 0);
-        lv_obj_move_background(bg_image); // Ensure it's at the back
-    }
-    // else: no bg image, default background
 }
 
 

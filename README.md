@@ -41,11 +41,11 @@ Below are some screenshots and animations of the current interface:
 **Home Screen:**  
 ![](/images/HomeScreen.jpeg)
 
-**Button Interaction Example:**  
-![](/images/Button.gif)
+**Animation Result:**  
+![](/images/animated-deck.gif)
 
 **Temperature Screen:**  
-![](/images/TemperatureScreen.jpeg)
+![](/images/House-temperature.jpg)
 
 ---
 
