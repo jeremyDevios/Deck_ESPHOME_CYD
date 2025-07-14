@@ -533,7 +533,7 @@ ha_deck:
 
         - type: value-card
           id: temp_bureau_card
-          position: 120, 18
+          position: 120, 23
           dimensions: 82x89
           #text: Bureau
           enabled: return true;
@@ -543,7 +543,7 @@ ha_deck:
             return std::string(buff);
         - type: value-card
           id: temp_SDB_card
-          position: 206, 18
+          position: 202, 23
           dimensions: 45x89
           #text: S.d.B.
           enabled: return true;
@@ -553,7 +553,7 @@ ha_deck:
             return std::string(buff);
         - type: value-card
           id: temp_Iris_card
-          position: 252, 28
+          position: 246, 36
           dimensions: 57x96
           #text: Iris
           enabled: return true;
@@ -564,7 +564,7 @@ ha_deck:
         - type: value-card
           id: temp_ellie_card
           #unit: °C
-          position: 157, 141
+          position: 157, 140
           dimensions: 73x96
           #text: Ellie
           enabled: return true;
@@ -575,7 +575,7 @@ ha_deck:
         - type: value-card
           id: temp_parent_card
           #unit: °C
-          position: 230, 141
+          position: 226, 140
           dimensions: 78x96
           #text: Parents
           enabled: return true;

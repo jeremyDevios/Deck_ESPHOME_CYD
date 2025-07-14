@@ -7,14 +7,14 @@
 #include "lvgl.h"
 #include <XPT2046_Touchscreen.h>
 
-LV_IMG_DECLARE(bg_room); 
-
 // CYD Touch SPI pins
 #define XPT2046_IRQ -1
 #define XPT2046_MOSI 32
 #define XPT2046_MISO 39
 #define XPT2046_CLK 25
 #define XPT2046_CS 33
+
+LV_IMG_DECLARE(RoomText); 
 
 
 namespace esphome {
