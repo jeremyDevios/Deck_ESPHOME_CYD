@@ -90,21 +90,40 @@ void HaDeckDevice::setup() {
 
     lcd.setBrightness(brightness_);
 
-    // lv_obj_t * bg_color = lv_obj_create(lv_scr_act());
-    // lv_obj_set_size(bg_color, 320, 240);
-    // lv_obj_set_style_border_width(bg_color, 0, LV_PART_MAIN | LV_STATE_DEFAULT);
-    // lv_obj_set_style_bg_color(bg_color, lv_color_hex(0x171717), LV_PART_MAIN | LV_STATE_DEFAULT);
-    // lv_obj_set_parent(bg_color, lv_scr_act());
-
-    // If you want the LVGL UI to appear on top of the background image,
-    // make sure the background of LVGL objects is transparent where needed
-    lv_obj_t * bg_color = lv_obj_create(lv_scr_act());
-    //lv_obj_set_size(bg_color, 320, 240);
-    lv_obj_set_style_border_width(bg_color, 0, LV_PART_MAIN | LV_STATE_DEFAULT);
-    // Make background transparent if you want to see the image underneath
-    lv_obj_set_style_bg_opa(bg_color, LV_OPA_TRANSP, LV_PART_MAIN | LV_STATE_DEFAULT); 
-    //lv_obj_set_parent(bg_color, lv_scr_act());
+    // Do NOT create the background image here (in setup), because it will always be visible.
+    // Instead, create and show/hide the background image dynamically when the screen changes.
 }
+
+// Add this function to handle screen changes
+void HaDeckDevice::on_screen_change(const std::string &screen_name) {
+    static lv_obj_t *bg_image = nullptr;
+
+    // Remove previous bg image if it exists
+    if (bg_image) {
+        lv_obj_del(bg_image);
+        bg_image = nullptr;
+    }
+
+    if (screen_name == "temperature") { // or use your SCREEN_TEMP substitution value
+        bg_image = lv_img_create(lv_scr_act());
+        lv_img_set_src(bg_image, &bg_room);
+        lv_obj_align(bg_image, LV_ALIGN_CENTER, 0, 0);
+        lv_obj_move_background(bg_image); // Ensure it's at the back
+    }
+    // else: no bg image, default background
+}
+
+// NOTE: The function on_screen_change will only be called if you explicitly call it
+// from your screen change logic. ha_deck does NOT call this automatically.
+// You must connect this function to the screen change event in your code.
+
+// Example: If you have access to the screen change event in your ha_deck integration,
+// call this function like:
+//   id(device).on_screen_change(screen_name);
+
+// If you are using only YAML and ha_deck, there is currently NO way to trigger this C++ function
+// automatically on screen change. You would need to patch ha_deck or add a custom lambda
+// in the ha_deck component to call this function when the screen changes.
 
 void HaDeckDevice::loop() {
     lv_timer_handler();

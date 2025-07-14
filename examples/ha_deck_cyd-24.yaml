@@ -44,7 +44,6 @@ external_components:
       ref: main
     components: [ ha_deck ]
 
-
 sensor:
 #Custom HomeAssistant
   - platform: homeassistant
@@ -264,6 +263,13 @@ hd_device_cyd-24:
 #              return (std::to_string(value) + " W").c_str();
 #            }
 
+# ha_deck does NOT currently support images or background images in any screen or widget.
+# There is no way to add image support to ha_deck via YAML configuration.
+# If you want image support, you must:
+# 1. Request this feature from the ha_deck project (https://github.com/strange-v/ha_deck/issues).
+# 2. Or, modify the ha_deck source code to add image/background support yourself.
+# 3. Or, use an ESPHome display component (like ili9341, st7789, etc.) which supports the 'image:' platform.
+
 ha_deck:
   id: deck
   main_screen: ${SCREEN_MAIN}
@@ -274,6 +280,7 @@ ha_deck:
     lambda:  |-
       if (x) {
         id(device).set_brightness(id(inactive_screen_brightness).state);
+        id(device).on_screen_change("main");
       } else {
         id(device).set_brightness(id(screen_brightness).state);
       }
@@ -351,6 +358,7 @@ ha_deck:
           on_click:
             lambda: |-
                 id(deck).switch_screen("$SCREEN_TEMP");
+                id(device).on_screen_change("temperature");
 
     - name: ${SCREEN_LED}
       widgets:
@@ -484,13 +492,15 @@ ha_deck:
           icon: 󰅁
           enabled: return true;
           on_click:
-            - lambda: id(deck).switch_screen("$SCREEN_MAIN");
+            - lambda: |-
+                id(deck).switch_screen("$SCREEN_MAIN");
+                id(device).on_screen_change("main");
 
         - type: value-card
           id: temp_salon_card
-          position: 46, 9
-          dimensions: 60x222
-          text: Salon
+          position: 77, 119
+          #text: Salon
+          dimensions: 58x80
           enabled: return true;
           value: |-
             char buff[10] = "-";
@@ -499,9 +509,9 @@ ha_deck:
 
         - type: value-card
           id: temp_bureau_card
-          position: 116, 9
-          dimensions: 58x106
-          text: Bureau
+          position: 120, 18
+          dimensions: 82x89
+          #text: Bureau
           enabled: return true;
           value: |-
             char buff[10] = "-";
@@ -509,19 +519,19 @@ ha_deck:
             return std::string(buff);
         - type: value-card
           id: temp_SDB_card
-          position: 182, 9
-          dimensions: 58x106
-          text: S.d.B.
+          position: 206, 18
+          dimensions: 45x89
+          #text: S.d.B.
           enabled: return true;
           value: |-
             char buff[10] = "-";
-            sprintf(buff, "%.1f", id(temp_sdb).state);
+            sprintf(buff, "%.0f", id(temp_sdb).state);
             return std::string(buff);
         - type: value-card
           id: temp_Iris_card
-          position: 252, 9
-          dimensions: 58x106
-          text: Iris
+          position: 252, 28
+          dimensions: 57x96
+          #text: Iris
           enabled: return true;
           value: |-
             char buff[10] = "-";
@@ -529,10 +539,10 @@ ha_deck:
             return std::string(buff);
         - type: value-card
           id: temp_ellie_card
-          unit: °C
-          position: 116, 124
-          dimensions: 92x106
-          text: Ellie
+          #unit: °C
+          position: 157, 141
+          dimensions: 73x96
+          #text: Ellie
           enabled: return true;
           value: |-
             char buff[10] = "-";
@@ -540,10 +550,10 @@ ha_deck:
             return std::string(buff);
         - type: value-card
           id: temp_parent_card
-          unit: °C
-          position: 218, 124
-          dimensions: 92x106
-          text: Parents
+          #unit: °C
+          position: 230, 141
+          dimensions: 78x96
+          #text: Parents
           enabled: return true;
           value: |-
             char buff[10] = "-";

@@ -7,6 +7,9 @@
 #include "lvgl.h"
 #include <XPT2046_Touchscreen.h>
 
+LV_IMG_DECLARE(bg_room);  // Include the Room image header
+
+
 // CYD Touch SPI pins
 #define XPT2046_IRQ -1
 #define XPT2046_MOSI 32
@@ -26,6 +29,7 @@ public:
     float get_setup_priority() const override;
     uint8_t get_brightness();
     void set_brightness(uint8_t value);
+    void on_screen_change(const std::string &screen_name); // Add this declaration
 private:
     unsigned long time_ = 0;
     uint8_t brightness_ = 0;
