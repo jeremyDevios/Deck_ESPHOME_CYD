@@ -1,2 +1,41 @@
 .DS_Store
 secret.yml
+
+# ESPHome build artifacts
+*.pyc
+*.pyo
+*.pyd
+__pycache__/
+build/
+.esphome/
+*.bin
+*.elf
+*.map
+
+# VS Code settings
+.vscode/
+.code-workspace
+
+# PlatformIO
+.pio/
+.piolibdeps/
+.pioenvs/
+*.ini.bak
+
+# OS generated files
+.DS_Store
+Thumbs.db
+
+# Secrets
+secrets.yaml
+*.secret
+*.env
+
+# Logs
+*.log
+
+
+# Backup files
+*~
+*.bak
+*.swp
