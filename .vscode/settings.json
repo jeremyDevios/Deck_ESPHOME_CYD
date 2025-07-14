@@ -1,9 +1,0 @@
-{
-    "files.associations": {
-        "ios": "cpp",
-        "array": "cpp",
-        "string": "cpp",
-        "string_view": "cpp",
-        "vector": "cpp"
-    }
-}
